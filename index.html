@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Флеш-карточки с транскрипцией</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0b1120, #1a2332);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-radius: 48px;
+            padding: 35px 30px;
+            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        h1 {
+            color: #f1f5f9;
+            font-weight: 500;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding-bottom: 18px;
+            flex-wrap: wrap;
+        }
+
+        h1 small {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #94a3b8;
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 6px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .tabs-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.04);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            padding: 10px 22px;
+            border-radius: 40px;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+        }
+
+        .tab-btn.active {
+            background: rgba(42, 107, 143, 0.25);
+            color: #7fc9e6;
+            border-color: rgba(100, 200, 255, 0.15);
+        }
+
+        .tab-btn .badge {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .tab-btn.active .badge {
+            background: rgba(100, 200, 255, 0.1);
+            color: #7fc9e6;
+        }
+
+        .tab-btn.favorite-tab {
+            background: rgba(255, 200, 0, 0.08);
+            border-color: rgba(255, 200, 0, 0.15);
+        }
+
+        .tab-btn.favorite-tab.active {
+            background: rgba(255, 200, 0, 0.15);
+            border-color: rgba(255, 200, 0, 0.3);
+            color: #fbbf24;
+        }
+
+        .tab-btn.favorite-tab .badge {
+            background: rgba(255, 200, 0, 0.1);
+            color: #fbbf24;
+        }
+
+        .tab-add-btn {
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            background: transparent;
+            color: #64748b;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-add-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-delete-btn {
+            padding: 4px 10px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 50, 50, 0.05);
+            color: #f87171;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-left: 4px;
+            opacity: 0.5;
+        }
+
+        .tab-delete-btn:hover {
+            opacity: 1;
+            background: rgba(255, 50, 50, 0.12);
+        }
+
+        .add-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .add-form input {
+            flex: 1;
+            min-width: 150px;
+            padding: 14px 20px;
+            border-radius: 40px;
+            border: 1px solid #334155;
+            background: rgba(0, 0, 0, 0.3);
+            color: #f1f5f9;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .add-form input:focus {
+            border-color: #5b7c9e;
+            box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.1);
+        }
+
+        .add-form input::placeholder {
+            color: #64748b;
+        }
+
+        .add-form .input-wrapper {
+            flex: 1;
+            min-width: 150px;
+            position: relative;
+        }
+
+        .add-form .input-wrapper label {
+            position: absolute;
+            top: -10px;
+            left: 16px;
+            background: #1a2332;
+            padding: 0 8px;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            border-radius: 10px;
+        }
+
+        .btn-add {
+            padding: 14px 30px;
+            border-radius: 40px;
+            border: none;
+            background: #2a6b8f;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+
+        .btn-add:hover {
+            background: #3a7fa5;
+            transform: scale(1.02);
+        }
+
+        .btn-add:active {
+            transform: scale(0.97);
+        }
+
+        .voice-controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 14px 20px;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 14px 20px;
+            border-radius: 60px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .voice-controls label {
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        #voiceSelect {
+            flex: 1;
+            min-width: 180px;
+            background: #1e293b;
+            color: #f1f5f9;
+            border: 1px solid #334155;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        #voiceSelect:hover {
+            border-color: #5b7c9e;
+        }
+
+        .accent-badge {
+            background: #1e3a4a;
+            color: #7fc9e6;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(100, 200, 255, 0.08);
+        }
+
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 14px 4px 18px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .speed-control label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 400;
+        }
+
+        .speed-control input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100px;
+            height: 4px;
+            border-radius: 4px;
+            background: #334155;
+            outline: none;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .speed-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #7fc9e6;
+            cursor: pointer;
+            border: 2px solid #1a2332;
+            box-shadow: 0 0 10px rgba(127, 201, 230, 0.3);
+            transition: 0.2s;
+        }
+
+        .speed-control input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #94d4f0;
+        }
+
+        .speed-control input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #7fc9e6;
+            cursor: pointer;
+            border: 2px solid #1a2332;
+        }
+
+        .speed-control .speed-value {
+            color: #f1f5f9;
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 36px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .word-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 6px;
+            margin-bottom: 12px;
+        }
+
+        .word-item {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 14px 18px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        .word-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .word-item .word-text {
+            flex: 1;
+            min-width: 400px;
+            color: #44dbe0;
+            font-size: 1.05rem;
+            font-weight: 500;
+            word-break: break-word;
+            letter-spacing: 0.8px;
+        }
+
+        .word-item .word-text .lang-tag {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-left: 6px;
+        }
+
+        .word-item .word-text .tab-tag {
+            font-size: 0.6rem;
+            color: #7fc9e6;
+            font-weight: 400;
+            margin-left: 4px;
+            background: rgba(127, 201, 230, 0.08);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .word-item .word-read {
+            flex: 1;
+            min-width: 100px;
+            color: #fbbf24;
+            font-size: 0.9rem;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 200, 100, 0.05);
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            font-style: italic;
+        }
+
+        .word-item .word-read.hidden {
+            color: #64748b;
+            background: rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.03);
+            font-style: italic;
+        }
+
+        .word-item .word-read .lang-tag {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-right: 6px;
+        }
+
+        .word-item .word-translation {
+            flex: 1;
+            min-width: 400px;
+            color: #a8e6a0;
+            font-size: 0.95rem;
+            padding: 4px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 20px;
+            border: 1px solid rgba(100, 255, 100, 0.05);
+            min-height: 36px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .word-item .word-translation.hidden {
+            color: #64748b;
+            background: rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.03);
+            font-style: italic;
+        }
+
+        .word-item .word-translation .lang-tag {
+            font-size: 0.65rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-right: 6px;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 6px 14px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .btn-speak {
+            background: #1e3a4a;
+            color: #7fc9e6;
+            border: 1px solid rgba(100, 200, 255, 0.1);
+        }
+
+        .btn-speak:hover {
+            background: #2a4d62;
+            transform: scale(1.03);
+        }
+
+        .btn-speak:active {
+            transform: scale(0.95);
+        }
+
+        .btn-speak.speaking {
+            background: #4a6a3a;
+            color: #a8e6a0;
+            border-color: rgba(100, 255, 100, 0.2);
+        }
+
+        .btn-toggle {
+            background: #2a3a4a;
+            color: #b9d0eb;
+            border: 1px solid rgba(100, 200, 255, 0.05);
+        }
+
+        .btn-toggle:hover {
+            background: #3a4a5e;
+            transform: scale(1.03);
+        }
+
+        .btn-read {
+            background: #3a3a2a;
+            color: #fbbf24;
+            border: 1px solid rgba(255, 200, 100, 0.1);
+        }
+
+        .btn-read:hover {
+            background: #4a4a3a;
+            transform: scale(1.03);
+        }
+
+        .btn-edit {
+            background: #3a3a2a;
+            color: #e6d4a0;
+            border: 1px solid rgba(255, 200, 100, 0.1);
+        }
+
+        .btn-edit:hover {
+            background: #4a4a3a;
+            transform: scale(1.03);
+        }
+
+        .btn-delete {
+            background: rgba(255, 50, 50, 0.08);
+            color: #f87171;
+            border: 1px solid rgba(255, 50, 50, 0.1);
+            padding: 6px 10px;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 50, 50, 0.15);
+            transform: scale(1.03);
+        }
+
+        .btn-delete:active {
+            transform: scale(0.95);
+        }
+
+        .btn-favorite {
+            background: rgba(255, 200, 0, 0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 200, 0, 0.05);
+            padding: 6px 10px;
+            font-size: 1.1rem;
+        }
+
+        .btn-favorite:hover {
+            background: rgba(255, 200, 0, 0.15);
+            transform: scale(1.03);
+        }
+
+        .btn-favorite.is-favorite {
+            background: rgba(255, 200, 0, 0.2);
+            color: #fbbf24;
+            border-color: rgba(255, 200, 0, 0.3);
+        }
+
+        .empty-message {
+            color: #64748b;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 1rem;
+            border: 2px dashed rgba(255, 255, 255, 0.04);
+            border-radius: 28px;
+        }
+
+        .counter {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            text-align: right;
+            margin-top: 4px;
+        }
+
+        .status-bar {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            padding: 8px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 30px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-bar .dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4a6a3a;
+        }
+
+        .tab-actions {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+            align-items: center;
+        }
+
+        .btn-rename-tab {
+            padding: 4px 10px;
+            border-radius: 30px;
+            border: none;
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-rename-tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #cbd5e1;
+        }
+
+        .btn-show-all {
+            padding: 6px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.03);
+            color: #94a3b8;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-show-all:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #cbd5e1;
+        }
+
+        .json-manager {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 32px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .json-manager-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .json-manager-header h3 {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .json-input-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .json-input-group input {
+            flex: 1;
+            min-width: 150px;
+            padding: 10px 18px;
+            border-radius: 40px;
+            border: 1px solid #334155;
+            background: rgba(0, 0, 0, 0.3);
+            color: #f1f5f9;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .json-input-group input:focus {
+            border-color: #5b7c9e;
+            box-shadow: 0 0 0 3px rgba(100, 150, 255, 0.1);
+        }
+
+        .json-input-group input::placeholder {
+            color: #64748b;
+        }
+
+        .btn-json {
+            padding: 10px 22px;
+            border-radius: 40px;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-json-primary {
+            background: #2a6b8f;
+            color: white;
+        }
+
+        .btn-json-primary:hover {
+            background: #3a7fa5;
+            transform: scale(1.02);
+        }
+
+        .btn-json-success {
+            background: #2a6b3a;
+            color: #a8e6a0;
+        }
+
+        .btn-json-success:hover {
+            background: #3a7a4a;
+            transform: scale(1.02);
+        }
+
+        .btn-json-danger {
+            background: rgba(255, 50, 50, 0.1);
+            color: #f87171;
+        }
+
+        .btn-json-danger:hover {
+            background: rgba(255, 50, 50, 0.2);
+            transform: scale(1.02);
+        }
+
+        .path-hint {
+            color: #64748b;
+            font-size: 0.7rem;
+            padding: 4px 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                padding: 20px 16px;
+                border-radius: 32px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .word-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .word-actions {
+                justify-content: stretch;
+            }
+
+            .word-actions .btn-action {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .voice-controls {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 32px;
+            }
+
+            .speed-control {
+                justify-content: center;
+            }
+
+            .speed-control input[type="range"] {
+                width: 100%;
+            }
+
+            .add-form {
+                flex-direction: column;
+            }
+
+            .add-form input {
+                min-width: 100%;
+            }
+
+            .tabs-container {
+                gap: 6px;
+            }
+
+            .tab-btn {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .json-manager-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .json-input-group {
+                flex-direction: column;
+            }
+
+            .json-input-group input {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            🃏 Флеш-карточки
+            <small>🇬🇧 с транскрипцией для А1</small>
+        </h1>
+
+        <!-- Вкладки -->
+        <div class="tabs-container" id="tabsContainer">
+            <button class="tab-add-btn" id="addTabBtn">➕ Новая тема</button>
+        </div>
+
+        <!-- JSON управление -->
+        <div class="json-manager">
+            <div class="json-manager-header">
+                <h3>📁 Добавить JSON файл</h3>
+                <div class="json-input-group">
+                    <input type="text" id="jsonFileNameInput" placeholder="Название (без .json)" />
+                    <input type="text" id="jsonFilePathInput" placeholder="Путь к файлу (необязательно)" />
+                    <button class="btn-json btn-json-primary" id="addJsonFileBtn">➕ Добавить</button>
+                    <button class="btn-json btn-json-success" id="downloadJsonBtn">💾 Скачать тему</button>
+                    <button class="btn-json btn-json-danger" id="clearAllBtn">🗑️ Очистить всё</button>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+                <span class="path-hint">💡 Введи название и нажми «Добавить» — тема создастся автоматически</span>
+                <span class="path-hint">📂 Если указать путь, загрузит JSON оттуда</span>
+            </div>
+        </div>
+
+        <!-- Статус -->
+        <div class="status-bar" id="statusBar">
+            <span class="dot" id="statusDot"></span>
+            <span id="statusText">Нажмите 👁️ чтобы увидеть перевод</span>
+            <button class="btn-show-all" id="showAllBtn">🔓 Показать всё</button>
+            <button class="btn-show-all" id="hideAllBtn">🔒 Скрыть всё</button>
+        </div>
+
+        <!-- Форма добавления -->
+        <div class="add-form">
+            <div class="input-wrapper">
+                <label>🇬🇧 English</label>
+                <input type="text" id="englishInput" placeholder="Английское слово..." />
+            </div>
+            <div class="input-wrapper">
+                <label>🇷🇺 Русский</label>
+                <input type="text" id="russianInput" placeholder="Перевод..." />
+            </div>
+            <div class="input-wrapper">
+                <label>🔊 Как читать</label>
+                <input type="text" id="readInput" placeholder="Например: Хэлло́у" />
+            </div>
+            <button class="btn-add" id="addBtn">➕ Добавить</button>
+        </div>
+
+        <!-- Выбор голоса + скорость -->
+        <div class="voice-controls">
+            <label for="voiceSelect">🗣️ Голос</label>
+            <select id="voiceSelect"></select>
+            <span class="accent-badge" id="accentBadge">🇬🇧 акцент</span>
+
+            <div class="speed-control">
+                <label>🐢</label>
+                <input type="range" id="speedRange" min="0.5" max="2.0" step="0.05" value="0.92" />
+                <label>🐇</label>
+                <span class="speed-value" id="speedValue">0.92</span>
+            </div>
+        </div>
+
+        <!-- Список слов -->
+        <div id="wordList" class="word-list">
+            <div class="empty-message">✨ Добавьте слова для изучения</div>
+        </div>
+
+        <div class="counter" id="counter">Всего: 0</div>
+    </div>
+
+    <script>
+        (function() {
+            // ========== DOM ==========
+            const tabsContainer = document.getElementById('tabsContainer');
+            const wordList = document.getElementById('wordList');
+            const englishInput = document.getElementById('englishInput');
+            const russianInput = document.getElementById('russianInput');
+            const readInput = document.getElementById('readInput');
+            const addBtn = document.getElementById('addBtn');
+            const voiceSelect = document.getElementById('voiceSelect');
+            const accentBadge = document.getElementById('accentBadge');
+            const speedRange = document.getElementById('speedRange');
+            const speedValue = document.getElementById('speedValue');
+            const counter = document.getElementById('counter');
+            const addTabBtn = document.getElementById('addTabBtn');
+            const statusText = document.getElementById('statusText');
+            const statusDot = document.getElementById('statusDot');
+            const showAllBtn = document.getElementById('showAllBtn');
+            const hideAllBtn = document.getElementById('hideAllBtn');
+
+            const jsonFileNameInput = document.getElementById('jsonFileNameInput');
+            const jsonFilePathInput = document.getElementById('jsonFilePathInput');
+            const addJsonFileBtn = document.getElementById('addJsonFileBtn');
+            const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+
+            // ========== ДАННЫЕ ==========
+            let data = {
+                tabs: [],
+                nextTabId: 1,
+                nextItemId: 1,
+                activeTabId: null
+            };
+
+            let showTranslation = {};
+            let showRead = {};
+            let favorites = {};
+
+            // ========== КЛЮЧИ ДЛЯ localStorage ==========
+            const STORAGE_KEY_DATA = 'flashcards_data';
+            const STORAGE_KEY_FAVORITES = 'flashcards_favorites';
+
+            // ========== СОХРАНЕНИЕ В localStorage ==========
+            function saveData() {
+                try {
+                    const saveObj = {
+                        tabs: data.tabs,
+                        nextTabId: data.nextTabId,
+                        nextItemId: data.nextItemId,
+                        activeTabId: data.activeTabId
+                    };
+                    localStorage.setItem(STORAGE_KEY_DATA, JSON.stringify(saveObj));
+                    localStorage.setItem(STORAGE_KEY_FAVORITES, JSON.stringify(favorites));
+                } catch (e) {
+                    console.warn('Ошибка сохранения:', e);
+                }
+            }
+
+            // ========== ЗАГРУЗКА ИЗ localStorage ==========
+            function loadData() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY_DATA);
+                    if (saved) {
+                        const parsed = JSON.parse(saved);
+                        data.tabs = parsed.tabs || [];
+                        data.nextTabId = parsed.nextTabId || 1;
+                        data.nextItemId = parsed.nextItemId || 1;
+                        data.activeTabId = parsed.activeTabId || null;
+                    }
+
+                    const favSaved = localStorage.getItem(STORAGE_KEY_FAVORITES);
+                    if (favSaved) {
+                        favorites = JSON.parse(favSaved);
+                    }
+                } catch (e) {
+                    console.warn('Ошибка загрузки:', e);
+                }
+            }
+
+            // ========== СКОРОСТЬ ==========
+            let currentSpeed = 0.92;
+
+            speedRange.addEventListener('input', function() {
+                currentSpeed = parseFloat(this.value);
+                speedValue.textContent = currentSpeed.toFixed(2);
+            });
+
+            // ========== ВСЕ ЦИТАТЫ (26 ТЕМ) ==========
+            const ALL_QUOTES = [
+                {
+                    "name": "Авиация",
+                    "words": [
+                        { "english": "The young people got me interested in aviation. It is part of the motor age. Development is dependent on power.", "russian": "Молодые люди заинтересовали меня авиацией. Это часть моторного века. Развитие зависит от мощности." },
+                        { "english": "What America needs most is aviation.", "russian": "Больше всего Америке нужна авиация." },
+                        { "english": "I can visualize the time when almost every family will have a small plane in their back yard.", "russian": "Я вижу время, когда почти каждая семья будет иметь небольшой самолет на своем заднем дворе." },
+                        { "english": "Mark my word: A combination airplane and motor car is coming.", "russian": "Помяните мое слово: комбинация самолета и автомобиля грядет." }
+                    ]
+                },
+                {
+                    "name": "Автомобили (Модель T и новая модель)",
+                    "words": [
+                        { "english": "I will build a motor car for the great multitude.", "russian": "Я построю автомобиль для великого множества людей." },
+                        { "english": "The Model T was not just a car, it was a revolution.", "russian": "Модель T была не просто машиной, это была революция." },
+                        { "english": "Any customer can have a car painted any color that he wants so long as it is black.", "russian": "Любой покупатель может получить машину любого цвета, при условии, что это черный." },
+                        { "english": "The way to make automobiles is to make one automobile like another, to make them all alike.", "russian": "Способ делать автомобили — делать один автомобиль как другой, делать их все одинаковыми." },
+                        { "english": "The car has become a necessity of modern life.", "russian": "Автомобиль стал необходимостью современной жизни." }
+                    ]
+                },
+                {
+                    "name": "Бизнес, конкуренция и управление",
+                    "words": [
+                        { "english": "Competition is the keen cutting edge of business, always shaving away at costs.", "russian": "Конкуренция — это острое лезвие бизнеса, всегда срезающее затраты." },
+                        { "english": "Business is not about money. It's about making a difference.", "russian": "Бизнес не о деньгах. Он о том, чтобы изменить мир." },
+                        { "english": "The best way to predict the future is to create it.", "russian": "Лучший способ предсказать будущее — создать его." },
+                        { "english": "Business is a service, not a monopoly.", "russian": "Бизнес — это служение, а не монополия." },
+                        { "english": "The only way to make money is to provide a better product at a lower price.", "russian": "Единственный способ заработать деньги — предложить лучший продукт по более низкой цене." }
+                    ]
+                },
+                {
+                    "name": "Благотворительность и возможности",
+                    "words": [
+                        { "english": "Charity is not a virtue, it's a necessity.", "russian": "Благотворительность — не добродетель, а необходимость." },
+                        { "english": "Opportunity is missed by most people because it is dressed in overalls and looks like work.", "russian": "Большинство людей упускают возможность, потому что она одета в спецовку и выглядит как работа." },
+                        { "english": "To give people a chance is to give them a future.", "russian": "Дать людям шанс — значит дать им будущее." },
+                        { "english": "The real charity is to help people help themselves.", "russian": "Настоящая благотворительность — помогать людям помогать себе." }
+                    ]
+                },
+                {
+                    "name": "Вера, мораль и характер",
+                    "words": [
+                        { "english": "My faith is the foundation of my life.", "russian": "Моя вера — это основа моей жизни." },
+                        { "english": "Character is the greatest thing in the world.", "russian": "Характер — это величайшая вещь в мире." },
+                        { "english": "I believe in the power of truth.", "russian": "Я верю в силу истины." },
+                        { "english": "A man's character is his fate.", "russian": "Характер человека — это его судьба." },
+                        { "english": "Honesty is the best policy in business and in life.", "russian": "Честность — лучшая политика в бизнесе и в жизни." }
+                    ]
+                },
+                {
+                    "name": "Война и мир",
+                    "words": [
+                        { "english": "War is the worst thing that can happen to humanity.", "russian": "Война — это худшее, что может случиться с человечеством." },
+                        { "english": "Peace is the only way to progress.", "russian": "Мир — это единственный путь к прогрессу." },
+                        { "english": "I am opposed to war in all its forms.", "russian": "Я против войны во всех её формах." },
+                        { "english": "The only way to have peace is to prepare for peace.", "russian": "Единственный способ иметь мир — готовиться к миру." }
+                    ]
+                },
+                {
+                    "name": "Депрессия и процветание",
+                    "words": [
+                        { "english": "Depression is not a sign of weakness, it's a sign of strength.", "russian": "Депрессия — это не признак слабости, это признак силы." },
+                        { "english": "Prosperity comes from hard work and determination.", "russian": "Процветание приходит через труд и решимость." },
+                        { "english": "The only way to overcome depression is to keep moving forward.", "russian": "Единственный способ преодолеть депрессию — продолжать двигаться вперед." },
+                        { "english": "Hard times build character and strength.", "russian": "Трудные времена строят характер и силу." }
+                    ]
+                },
+                {
+                    "name": "Деньги, инвестиции и финансы",
+                    "words": [
+                        { "english": "Money is a tool, not a goal.", "russian": "Деньги — это инструмент, а не цель." },
+                        { "english": "Invest in yourself, it's the best investment.", "russian": "Инвестируйте в себя — это лучшая инвестиция." },
+                        { "english": "Financial freedom comes from financial education.", "russian": "Финансовая свобода приходит через финансовое образование." },
+                        { "english": "The only thing money gives you is the freedom to do what you want.", "russian": "Единственное, что дают тебе деньги — это свобода делать то, что ты хочешь." }
+                    ]
+                },
+                {
+                    "name": "Здоровье, питание и образ жизни",
+                    "words": [
+                        { "english": "Health is the real wealth of life.", "russian": "Здоровье — это настоящее богатство жизни." },
+                        { "english": "You are what you eat.", "russian": "Ты — то, что ты ешь." },
+                        { "english": "A healthy lifestyle is the key to happiness.", "russian": "Здоровый образ жизни — ключ к счастью." },
+                        { "english": "The body is the temple of the soul.", "russian": "Тело — это храм души." }
+                    ]
+                },
+                {
+                    "name": "Лидерство и организации",
+                    "words": [
+                        { "english": "Leadership is the ability to inspire others.", "russian": "Лидерство — это способность вдохновлять других." },
+                        { "english": "Organizations succeed when people work together.", "russian": "Организации преуспевают, когда люди работают вместе." },
+                        { "english": "A good leader is a servant to his people.", "russian": "Хороший лидер — это слуга своего народа." },
+                        { "english": "The best leader is the one who knows how to follow.", "russian": "Лучший лидер — тот, кто умеет подчиняться." },
+                        { "english": "Leadership is not about being in charge. It's about taking care of those in your charge.", "russian": "Лидерство — это не о том, чтобы быть главным. Это о заботе о тех, кто под твоим началом." }
+                    ]
+                },
+                {
+                    "name": "Молодежь и дети",
+                    "words": [
+                        { "english": "Children are the future of our world.", "russian": "Дети — это будущее нашего мира." },
+                        { "english": "Youth is not a time of life, it's a state of mind.", "russian": "Молодость — это не время жизни, это состояние души." },
+                        { "english": "Invest in children, invest in tomorrow.", "russian": "Инвестируйте в детей — инвестируйте в завтра." },
+                        { "english": "The young people have the power to change the world.", "russian": "Молодые люди имеют силу изменить мир." },
+                        { "english": "Children learn more from what you are than what you teach.", "russian": "Дети учатся больше из того, кем вы являетесь, чем из того, чему вы учите." }
+                    ]
+                },
+                {
+                    "name": "Образование и обучение",
+                    "words": [
+                        { "english": "That man is best educated who knows the greatest number of things that are so, and who can do the greatest number of things to help and heal the world.", "russian": "Тот человек лучше всего образован, кто знает наибольшее число вещей, которые действительно существуют, и кто может сделать наибольшее число дел, чтобы помочь и исцелить мир." },
+                        { "english": "Education is preeminently a matter of quality, not amount.", "russian": "Образование — это прежде всего вопрос качества, а не количества." },
+                        { "english": "Any man can learn anything he will, but no man can teach except to those who want to learn.", "russian": "Любой человек может научиться всему, чему захочет, но никто не может научить, кроме тех, кто хочет учиться." },
+                        { "english": "Thinking calls for facts; facts are found by digging; but he who has gathered this wealth is well equipped for life.", "russian": "Мышление требует фактов; факты добываются копанием; но тот, кто собрал это богатство, хорошо подготовлен к жизни." },
+                        { "english": "Experience is the harvest of life, and every harvest is the result of a sowing.", "russian": "Опыт — это урожай жизни, и каждый урожай есть результат посева." },
+                        { "english": "An educated person, I think, is one who not only knows a lot, but knows how to do a lot of things.", "russian": "Образованный человек, я думаю, это тот, кто не только много знает, но и умеет делать много вещей." },
+                        { "english": "What is life but education, anyway?", "russian": "Что такое жизнь, если не образование, в конце концов?" },
+                        { "english": "I believe in 100% Theory and 100% Practice. Theory without practical application is futile.", "russian": "Я верю в 100% теории и 100% практики. Теория без практического применения бесполезна." },
+                        { "english": "A man's college and university degrees mean nothing to me until I see what he is able to do with them.", "russian": "Университетские дипломы человека ничего для меня не значат, пока я не увижу, что он способен с ними сделать." },
+                        { "english": "Teach children not to be gullible.", "russian": "Учите детей не быть легковерными." },
+                        { "english": "In teaching the children at Greenfield Village, we are trying to get back some of the solid McGuffey qualities.", "russian": "Обучая детей в Гринфилд-Виллидж, мы пытаемся вернуть некоторые из тех основательных качеств, что были в учебниках Макгаффи." },
+                        { "english": "Education not just preparation for life, but part of life itself - a continuous art.", "russian": "Образование — это не просто подготовка к жизни, а часть самой жизни — непрерывное искусство." },
+                        { "english": "No one will ever get anywhere in this world unless he becomes a teacher, one who can show others how to do things.", "russian": "Никто никогда ничего не достигнет в этом мире, если не станет учителем, тем, кто может показать другим, как делать вещи." }
+                    ]
+                },
+                {
+                    "name": "Общество, досуг и пятидневная неделя",
+                    "words": [
+                        { "english": "Society benefits when people have time to rest.", "russian": "Общество выигрывает, когда у людей есть время для отдыха." },
+                        { "english": "The five-day work week is essential for progress.", "russian": "Пятидневная рабочая неделя необходима для прогресса." },
+                        { "english": "Leisure is the mother of invention.", "russian": "Досуг — мать изобретений." },
+                        { "english": "People work better when they have time to rest.", "russian": "Люди работают лучше, когда у них есть время отдохнуть." }
+                    ]
+                },
+                {
+                    "name": "Познание, опыт и истина",
+                    "words": [
+                        { "english": "Truth is the foundation of all progress.", "russian": "Истина — это основа всего прогресса." },
+                        { "english": "Experience is the best teacher.", "russian": "Опыт — лучший учитель." },
+                        { "english": "Knowledge is power.", "russian": "Знание — это сила." },
+                        { "english": "The only source of knowledge is experience.", "russian": "Единственный источник знаний — это опыт." },
+                        { "english": "Truth is the most powerful thing in the world.", "russian": "Истина — самая могущественная вещь в мире." }
+                    ]
+                },
+                {
+                    "name": "Политика и правительство",
+                    "words": [
+                        { "english": "Government should serve the people, not rule them.", "russian": "Правительство должно служить народу, а не управлять им." },
+                        { "english": "Politics is the art of compromise.", "russian": "Политика — это искусство компромисса." },
+                        { "english": "The best government is one that governs least.", "russian": "Лучшее правительство — это то, которое управляет меньше всего." },
+                        { "english": "Government should be a servant, not a master.", "russian": "Правительство должно быть слугой, а не господином." }
+                    ]
+                },
+                {
+                    "name": "Природа, ресурсы и сельское хозяйство",
+                    "words": [
+                        { "english": "Nature provides everything we need.", "russian": "Природа дает все, что нам нужно." },
+                        { "english": "Agriculture is the foundation of civilization.", "russian": "Сельское хозяйство — это основа цивилизации." },
+                        { "english": "We must protect our natural resources.", "russian": "Мы должны защищать наши природные ресурсы." },
+                        { "english": "The earth gives us everything we need to survive.", "russian": "Земля дает нам все, что нужно для выживания." }
+                    ]
+                },
+                {
+                    "name": "Прогресс и изменения",
+                    "words": [
+                        { "english": "Progress is the result of change.", "russian": "Прогресс — это результат изменений." },
+                        { "english": "Change is the only constant in life.", "russian": "Изменения — это единственная константа в жизни." },
+                        { "english": "Embrace change, it's the path to progress.", "russian": "Принимайте изменения — это путь к прогрессу." },
+                        { "english": "Progress is impossible without change.", "russian": "Прогресс невозможен без изменений." }
+                    ]
+                },
+                {
+                    "name": "Прошлое, история и музеи",
+                    "words": [
+                        { "english": "History teaches us about the future.", "russian": "История учит нас о будущем." },
+                        { "english": "Museums preserve our heritage.", "russian": "Музеи сохраняют наше наследие." },
+                        { "english": "The past is the foundation of the present.", "russian": "Прошлое — это основа настоящего." },
+                        { "english": "Those who don't learn from history are doomed to repeat it.", "russian": "Те, кто не учится на истории, обречены повторять её." }
+                    ]
+                },
+                {
+                    "name": "Работа, разум и привычки",
+                    "words": [
+                        { "english": "Work is the foundation of all achievement.", "russian": "Работа — это основа всех достижений." },
+                        { "english": "Habits make us who we are.", "russian": "Привычки делают нас теми, кто мы есть." },
+                        { "english": "The mind is the most powerful tool we have.", "russian": "Разум — это самый мощный инструмент, который у нас есть." },
+                        { "english": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", "russian": "Мы есть то, что мы постоянно делаем. Совершенство, таким образом, это не действие, а привычка." }
+                    ]
+                },
+                {
+                    "name": "Разные от Генри Форда",
+                    "words": [
+                        { "english": "Whether you think you can, or you think you can't – you're right.", "russian": "Верите ли вы, что сможете, или верите, что не сможете — вы в любом случае правы." },
+                        { "english": "Coming together is a beginning; keeping together is progress; working together is success.", "russian": "Собраться вместе — это начало; оставаться вместе — это прогресс; работать вместе — это успех." },
+                        { "english": "Quality means doing it right when no one is looking.", "russian": "Качество — это делать правильно, даже когда никто не смотрит." },
+                        { "english": "Failure is simply the opportunity to begin again, this time more intelligently.", "russian": "Неудача — это просто возможность начать заново, но уже более разумно." },
+                        { "english": "If you always do what you've always done, you'll always get what you've always got.", "russian": "Если вы всегда делаете то, что делали всегда, вы всегда будете иметь то, что имели всегда." },
+                        { "english": "The only real mistake is the one from which we learn nothing.", "russian": "Единственная настоящая ошибка — та, из которой мы ничему не учимся." }
+                    ]
+                },
+                {
+                    "name": "Религия, Рождество и Библия",
+                    "words": [
+                        { "english": "Christmas is the celebration of hope.", "russian": "Рождество — это празднование надежды." },
+                        { "english": "The Bible teaches us the way to live.", "russian": "Библия учит нас, как жить." },
+                        { "english": "Faith gives us strength in difficult times.", "russian": "Вера дает нам силу в трудные времена." },
+                        { "english": "Religion is the foundation of morality.", "russian": "Религия — это основа морали." }
+                    ]
+                },
+                {
+                    "name": "Семья, брак и женщины",
+                    "words": [
+                        { "english": "Family is the most important thing in life.", "russian": "Семья — это самое важное в жизни." },
+                        { "english": "Marriage is a partnership of equals.", "russian": "Брак — это партнерство равных." },
+                        { "english": "Women are the backbone of society.", "russian": "Женщины — это опора общества." },
+                        { "english": "A strong family builds a strong nation.", "russian": "Крепкая семья строит сильную нацию." }
+                    ]
+                },
+                {
+                    "name": "Томас Эдисон",
+                    "words": [
+                        { "english": "Edison was a great inventor who changed the world.", "russian": "Эдисон был великим изобретателем, изменившим мир." },
+                        { "english": "I learned much from Edison about perseverance.", "russian": "Я многому научился у Эдисона о настойчивости." },
+                        { "english": "Edison's light bulb lit up the modern world.", "russian": "Лампочка Эдисона осветила современный мир." },
+                        { "english": "Edison taught us that failure is just a step to success.", "russian": "Эдисон научил нас, что неудача — это просто шаг к успеху." },
+                        { "english": "The value of an idea lies in the using of it.", "russian": "Ценность идеи заключается в её использовании." }
+                    ]
+                },
+                {
+                    "name": "Труд, работа и зарплата",
+                    "words": [
+                        { "english": "Workers deserve fair wages.", "russian": "Рабочие заслуживают справедливой зарплаты." },
+                        { "english": "Labor is the source of all wealth.", "russian": "Труд — это источник всех богатств." },
+                        { "english": "A good job brings dignity to life.", "russian": "Хорошая работа придает жизни достоинство." },
+                        { "english": "The worker is the foundation of industry.", "russian": "Рабочий — это основа промышленности." }
+                    ]
+                },
+                {
+                    "name": "Успех и достижения",
+                    "words": [
+                        { "english": "Success is not the key to happiness. Happiness is the key to success.", "russian": "Успех — это не ключ к счастью. Счастье — это ключ к успеху." },
+                        { "english": "Achievement requires hard work and dedication.", "russian": "Достижение требует тяжелого труда и самоотдачи." },
+                        { "english": "The only real failure is the one from which we learn nothing.", "russian": "Единственная настоящая неудача — это та, из которой мы ничего не учим." },
+                        { "english": "Success comes from doing the right things, not just doing things right.", "russian": "Успех приходит от правильных действий, а не просто от правильного выполнения." }
+                    ]
+                },
+                {
+                    "name": "Характер и моральные ценности",
+                    "words": [
+                        { "english": "Character is the foundation of success.", "russian": "Характер — это основа успеха." },
+                        { "english": "Values define who we are.", "russian": "Ценности определяют, кто мы есть." },
+                        { "english": "A good character is more valuable than gold.", "russian": "Хороший характер ценнее золота." },
+                        { "english": "Character is what you do when no one is watching.", "russian": "Характер — это то, что ты делаешь, когда никто не смотрит." }
+                    ]
+                }
+            ];
+
+            // ========== СТАТУС ==========
+            function setStatus(text, type = 'idle') {
+                statusText.textContent = text;
+                statusDot.className = 'dot';
+                if (type === 'loading') statusDot.style.background = '#fbbf24';
+                else if (type === 'success') statusDot.style.background = '#4a6a3a';
+                else if (type === 'error') statusDot.style.background = '#f87171';
+                else statusDot.style.background = '#94a3b8';
+            }
+
+            // ========== ГОЛОСА ==========
+            let englishVoices = [];
+
+            function getAccentEmoji(lang) {
+                if (!lang) return '🌍';
+                const l = lang.toLowerCase();
+                if (l.includes('gb') || l.includes('uk')) return '🇬🇧';
+                if (l.includes('us')) return '🇺🇸';
+                if (l.includes('au')) return '🇦🇺';
+                if (l.includes('ca')) return '🇨🇦';
+                if (l.includes('in')) return '🇮🇳';
+                if (l.includes('ie')) return '🇮🇪';
+                if (l.includes('nz')) return '🇳🇿';
+                if (l.includes('za')) return '🇿🇦';
+                return '🌍';
+            }
+
+            function getAccentLabel(lang) {
+                if (!lang) return 'английский';
+                const l = lang.toLowerCase();
+                if (l.includes('gb') || l.includes('uk')) return 'британский';
+                if (l.includes('us')) return 'американский';
+                if (l.includes('au')) return 'австралийский';
+                if (l.includes('ca')) return 'канадский';
+                if (l.includes('in')) return 'индийский';
+                if (l.includes('ie')) return 'ирландский';
+                if (l.includes('nz')) return 'новозеландский';
+                if (l.includes('za')) return 'южноафриканский';
+                return 'английский';
+            }
+
+            function populateVoices() {
+                const allVoices = window.speechSynthesis.getVoices();
+                if (allVoices.length === 0) return false;
+
+                englishVoices = allVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+                const displayVoices = englishVoices.length > 0 ? englishVoices : allVoices;
+
+                const currentSelection = voiceSelect.value;
+                voiceSelect.innerHTML = '';
+
+                displayVoices.forEach(voice => {
+                    const option = document.createElement('option');
+                    option.value = voice.voiceURI;
+                    const emoji = getAccentEmoji(voice.lang);
+                    const label = getAccentLabel(voice.lang);
+                    option.textContent = `${emoji} ${voice.name} (${voice.lang}) — ${label}`;
+                    voiceSelect.appendChild(option);
+                });
+
+                if (currentSelection && [...voiceSelect.options].some(o => o.value === currentSelection)) {
+                    voiceSelect.value = currentSelection;
+                } else if (englishVoices.length > 0) {
+                    voiceSelect.value = englishVoices[0].voiceURI;
+                } else if (displayVoices.length > 0) {
+                    voiceSelect.value = displayVoices[0].voiceURI;
+                }
+
+                updateAccentBadge();
+                return true;
+            }
+
+            function getSelectedVoice() {
+                const uri = voiceSelect.value;
+                if (!uri) return null;
+                const all = window.speechSynthesis.getVoices();
+                return all.find(v => v.voiceURI === uri) || null;
+            }
+
+            function updateAccentBadge() {
+                const voice = getSelectedVoice();
+                if (voice) {
+                    const emoji = getAccentEmoji(voice.lang);
+                    const label = getAccentLabel(voice.lang);
+                    accentBadge.textContent = `${emoji} ${label} акцент`;
+                } else {
+                    accentBadge.textContent = '🌍 акцент';
+                }
+            }
+
+            function initVoices() {
+                if (window.speechSynthesis.getVoices().length > 0) {
+                    populateVoices();
+                } else {
+                    window.speechSynthesis.onvoiceschanged = function() {
+                        populateVoices();
+                    };
+                }
+            }
+
+            voiceSelect.addEventListener('change', updateAccentBadge);
+
+            // ========== ПРОИЗНОШЕНИЕ С РЕГУЛИРУЕМОЙ СКОРОСТЬЮ ==========
+            function speakText(text, buttonElement) {
+                if (!text) return;
+
+                const allVoices = window.speechSynthesis.getVoices();
+                const hasEn = allVoices.some(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+                if (!hasEn) {
+                    setStatus('⚠️ Нет английских голосов!', 'error');
+                    return;
+                }
+
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+
+                const utterance = new SpeechSynthesisUtterance(text);
+                const selectedVoice = getSelectedVoice();
+                if (selectedVoice) {
+                    utterance.voice = selectedVoice;
+                } else {
+                    const enVoice = allVoices.find(v => v.lang && v.lang.toLowerCase().startsWith('en'));
+                    if (enVoice) utterance.voice = enVoice;
+                }
+
+                utterance.rate = currentSpeed;
+                utterance.pitch = 1.0;
+                utterance.volume = 1;
+
+                if (buttonElement) {
+                    buttonElement.classList.add('speaking');
+                    buttonElement.textContent = '🔊 ...';
+                }
+
+                setStatus(`🔊 Читаю: "${text}"`, 'loading');
+
+                utterance.onend = function() {
+                    if (buttonElement) {
+                        buttonElement.classList.remove('speaking');
+                        buttonElement.innerHTML = '🔊 Произнести';
+                    }
+                    setStatus('Готов к работе', 'success');
+                };
+
+                utterance.onerror = function() {
+                    if (buttonElement) {
+                        buttonElement.classList.remove('speaking');
+                        buttonElement.innerHTML = '🔊 Произнести';
+                    }
+                    setStatus('❌ Ошибка воспроизведения', 'error');
+                };
+
+                window.speechSynthesis.speak(utterance);
+            }
+
+            // ========== РЕНДЕРИНГ ==========
+            function getActiveTab() {
+                return data.tabs.find(t => t.id === data.activeTabId);
+            }
+
+            function renderTabs() {
+                const children = tabsContainer.children;
+                for (let i = children.length - 1; i >= 0; i--) {
+                    if (children[i].id !== 'addTabBtn') {
+                        children[i].remove();
+                    }
+                }
+
+                // Вкладка "Избранное"
+                const favBtn = document.createElement('button');
+                favBtn.className = `tab-btn favorite-tab${data.activeTabId === 'favorites' ? ' active' : ''}`;
+                favBtn.dataset.tabId = 'favorites';
+                const favCount = Object.keys(favorites).length;
+                favBtn.innerHTML = `
+                    ⭐ Избранное
+                    <span class="badge">${favCount}</span>
+                `;
+                favBtn.addEventListener('click', function() {
+                    switchTab('favorites');
+                });
+                tabsContainer.insertBefore(favBtn, addTabBtn);
+
+                data.tabs.forEach(tab => {
+                    const btn = document.createElement('button');
+                    btn.className = `tab-btn${tab.id === data.activeTabId ? ' active' : ''}`;
+                    btn.dataset.tabId = tab.id;
+                    btn.innerHTML = `
+                        ${tab.name}
+                        <span class="badge">${tab.items.length}</span>
+                        <span class="tab-actions">
+                            <button class="btn-rename-tab" onclick="event.stopPropagation(); renameTab(${tab.id})">✏️</button>
+                            ${data.tabs.length > 1 ? `<button class="tab-delete-btn" onclick="event.stopPropagation(); deleteTab(${tab.id})">✕</button>` : ''}
+                        </span>
+                    `;
+                    btn.addEventListener('click', function() {
+                        switchTab(parseInt(this.dataset.tabId));
+                    });
+                    tabsContainer.insertBefore(btn, addTabBtn);
+                });
+            }
+
+            function renderItems() {
+                let activeTab;
+                let isFavorites = false;
+
+                if (data.activeTabId === 'favorites') {
+                    isFavorites = true;
+                    const favItems = [];
+                    data.tabs.forEach(tab => {
+                        tab.items.forEach(item => {
+                            if (favorites[item.id]) {
+                                favItems.push({
+                                    ...item,
+                                    tabName: tab.name
+                                });
+                            }
+                        });
+                    });
+                    activeTab = { items: favItems, name: 'Избранное' };
+                } else {
+                    activeTab = getActiveTab();
+                }
+
+                if (!activeTab || !activeTab.items || activeTab.items.length === 0) {
+                    if (isFavorites) {
+                        wordList.innerHTML = `<div class="empty-message">⭐ Нет избранных слов. Нажмите ⭐ на любой карточке, чтобы добавить в избранное!</div>`;
+                    } else {
+                        wordList.innerHTML = `<div class="empty-message">✨ В этой теме пока нет слов</div>`;
+                    }
+                    counter.textContent = `Всего: 0`;
+                    return;
+                }
+
+                wordList.innerHTML = '';
+                activeTab.items.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'word-item';
+                    div.dataset.itemId = item.id;
+
+                    const isTransVisible = showTranslation[item.id] || false;
+                    const isReadVisible = showRead[item.id] || false;
+                    const isFavorite = favorites[item.id] || false;
+
+                    const textSpan = document.createElement('span');
+                    textSpan.className = 'word-text';
+                    let tabInfo = '';
+                    if (item.tabName) {
+                        tabInfo = `<span class="tab-tag">📁 ${item.tabName}</span>`;
+                    }
+                    textSpan.innerHTML = `${item.english} <span class="lang-tag">EN</span> ${tabInfo}`;
+
+                    const readSpan = document.createElement('span');
+                    readSpan.className = `word-read${isReadVisible ? '' : ' hidden'}`;
+                    if (isReadVisible && item.read) {
+                        readSpan.innerHTML = `<span class="lang-tag">🔊</span> ${item.read}`;
+                    } else {
+                        readSpan.textContent = '🔇 нажмите чтобы увидеть чтение';
+                    }
+
+                    const transSpan = document.createElement('span');
+                    transSpan.className = `word-translation${isTransVisible ? '' : ' hidden'}`;
+                    if (isTransVisible) {
+                        transSpan.innerHTML = `<span class="lang-tag">RU</span> ${item.russian}`;
+                    } else {
+                        transSpan.textContent = '👁️ нажмите чтобы увидеть перевод';
+                    }
+
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'word-actions';
+
+                    const speakBtn = document.createElement('button');
+                    speakBtn.className = 'btn-action btn-speak';
+                    speakBtn.innerHTML = '🔊 Произнести';
+                    speakBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        speakText(item.english, speakBtn);
+                    });
+
+                    const readBtn = document.createElement('button');
+                    readBtn.className = 'btn-action btn-read';
+                    readBtn.innerHTML = isReadVisible ? '🔇 Скрыть чтение' : '🔊 Как читать';
+                    readBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleRead(item.id);
+                    });
+
+                    const toggleBtn = document.createElement('button');
+                    toggleBtn.className = 'btn-action btn-toggle';
+                    toggleBtn.innerHTML = isTransVisible ? '🙈 Скрыть' : '👁️ Показать';
+                    toggleBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleTranslation(item.id);
+                    });
+
+                    const favBtn = document.createElement('button');
+                    favBtn.className = `btn-action btn-favorite${isFavorite ? ' is-favorite' : ''}`;
+                    favBtn.innerHTML = isFavorite ? '⭐' : '☆';
+                    favBtn.title = isFavorite ? 'Убрать из избранного' : 'Добавить в избранное';
+                    favBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        toggleFavorite(item.id);
+                    });
+
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn-action btn-edit';
+                    editBtn.innerHTML = '✏️';
+                    editBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (isFavorites) {
+                            setStatus('⚠️ Редактировать можно только в основной теме', 'error');
+                            return;
+                        }
+                        editItem(item.id);
+                    });
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn-action btn-delete';
+                    deleteBtn.innerHTML = '✕';
+                    deleteBtn.title = 'Удалить';
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        if (isFavorites) {
+                            setStatus('⚠️ Удалять можно только в основной теме', 'error');
+                            return;
+                        }
+                        deleteItem(item.id);
+                    });
+
+                    actionsDiv.appendChild(speakBtn);
+                    actionsDiv.appendChild(readBtn);
+                    actionsDiv.appendChild(toggleBtn);
+                    actionsDiv.appendChild(favBtn);
+                    actionsDiv.appendChild(editBtn);
+                    actionsDiv.appendChild(deleteBtn);
+
+                    div.appendChild(textSpan);
+                    div.appendChild(readSpan);
+                    div.appendChild(transSpan);
+                    div.appendChild(actionsDiv);
+
+                    wordList.appendChild(div);
+                });
+
+                counter.textContent = `Всего: ${activeTab.items.length}`;
+            }
+
+            function renderAll() {
+                renderTabs();
+                renderItems();
+                saveData();
+            }
+
+            // ========== ЗАГРУЗКА ВСТРОЕННЫХ ДАННЫХ ==========
+            function loadBuiltInData() {
+                if (ALL_QUOTES.length > 0) {
+                    let totalWords = 0;
+                    ALL_QUOTES.forEach(topic => {
+                        const existing = data.tabs.find(t => t.name === topic.name);
+                        if (!existing) {
+                            const newTab = {
+                                id: data.nextTabId++,
+                                name: topic.name,
+                                items: []
+                            };
+                            topic.words.forEach(word => {
+                                newTab.items.push({
+                                    id: data.nextItemId++,
+                                    english: word.english,
+                                    russian: word.russian,
+                                    read: word.read || ''
+                                });
+                            });
+                            data.tabs.push(newTab);
+                            totalWords += topic.words.length;
+                        }
+                    });
+
+                    if (data.tabs.length > 0 && !data.activeTabId) {
+                        data.activeTabId = data.tabs[0].id;
+                    }
+                    renderAll();
+                    if (totalWords > 0) {
+                        setStatus(`✅ Загружено ${data.tabs.length} тем (${totalWords} цитат)`, 'success');
+                    }
+                }
+            }
+
+            // ========== ОПЕРАЦИИ С КАРТОЧКАМИ ==========
+            function toggleTranslation(itemId) {
+                showTranslation[itemId] = !showTranslation[itemId];
+                renderItems();
+            }
+
+            function toggleRead(itemId) {
+                showRead[itemId] = !showRead[itemId];
+                renderItems();
+            }
+
+            function toggleFavorite(itemId) {
+                if (favorites[itemId]) {
+                    delete favorites[itemId];
+                    setStatus('⭐ Убрано из избранного', 'idle');
+                } else {
+                    favorites[itemId] = true;
+                    setStatus('⭐ Добавлено в избранное', 'success');
+                }
+                renderAll();
+            }
+
+            function showAllTranslations() {
+                const activeTab = getActiveTab();
+                if (!activeTab) return;
+                activeTab.items.forEach(item => {
+                    showTranslation[item.id] = true;
+                });
+                renderItems();
+                setStatus(`🔓 Показаны все переводы (${activeTab.items.length})`, 'success');
+            }
+
+            function hideAllTranslations() {
+                const activeTab = getActiveTab();
+                if (!activeTab) return;
+                activeTab.items.forEach(item => {
+                    showTranslation[item.id] = false;
+                });
+                renderItems();
+                setStatus('🔒 Все переводы скрыты', 'idle');
+            }
+
+            // ========== ОПЕРАЦИИ С ТЕМАМИ ==========
+            function switchTab(tabId) {
+                if (data.activeTabId === tabId) return;
+                data.activeTabId = tabId;
+                showTranslation = {};
+                showRead = {};
+                renderAll();
+
+                if (tabId === 'favorites') {
+                    const count = Object.keys(favorites).length;
+                    setStatus(`⭐ Избранное (${count} слов)`, 'idle');
+                } else {
+                    const tab = getActiveTab();
+                    if (tab) {
+                        setStatus(`📚 Переключено на тему: ${tab.name} (${tab.items.length} слов)`, 'idle');
+                    }
+                }
+            }
+
+            function addItem(english, russian, read) {
+                const en = english.trim();
+                const ru = russian.trim();
+                const rd = read.trim();
+
+                if (!en) {
+                    setStatus('⚠️ Введите английское слово!', 'error');
+                    englishInput.focus();
+                    return;
+                }
+
+                let activeTab = getActiveTab();
+                if (!activeTab) {
+                    const name = prompt('Создайте тему для добавления слов:', 'Новая тема');
+                    if (!name || !name.trim()) return;
+                    const newTab = {
+                        id: data.nextTabId++,
+                        name: name.trim(),
+                        items: []
+                    };
+                    data.tabs.push(newTab);
+                    data.activeTabId = newTab.id;
+                    renderAll();
+                    activeTab = getActiveTab();
+                    if (!activeTab) return;
+                }
+
+                const exists = activeTab.items.some(item =>
+                    item.english.toLowerCase() === en.toLowerCase()
+                );
+                if (exists) {
+                    setStatus(`⚠️ Слово "${en}" уже есть!`, 'error');
+                    return;
+                }
+
+                const newItem = {
+                    id: data.nextItemId++,
+                    english: en,
+                    russian: ru || '(перевод не указан)',
+                    read: rd || ''
+                };
+
+                activeTab.items.push(newItem);
+                showTranslation[newItem.id] = false;
+                showRead[newItem.id] = false;
+
+                renderAll();
+                englishInput.value = '';
+                russianInput.value = '';
+                readInput.value = '';
+                englishInput.focus();
+                setStatus(`✅ Добавлено: "${en}"`, 'success');
+            }
+
+            function editItem(itemId) {
+                const activeTab = getActiveTab();
+                if (!activeTab) return;
+
+                const item = activeTab.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                const newEnglish = prompt('Введите английское слово:', item.english);
+                if (newEnglish === null) return;
+                const newRussian = prompt('Введите перевод:', item.russian);
+                if (newRussian === null) return;
+                const newRead = prompt('Введите как читать (русскими буквами):', item.read || '');
+                if (newRead === null) return;
+
+                if (newEnglish.trim()) {
+                    item.english = newEnglish.trim();
+                }
+                item.russian = newRussian.trim() || '(перевод не указан)';
+                item.read = newRead.trim() || '';
+
+                renderAll();
+                setStatus(`✏️ Слово обновлено`, 'success');
+            }
+
+            function deleteItem(itemId) {
+                const activeTab = getActiveTab();
+                if (!activeTab) return;
+                const item = activeTab.items.find(i => i.id === itemId);
+                if (!item) return;
+
+                if (!confirm(`Удалить слово "${item.english}"?`)) return;
+
+                activeTab.items = activeTab.items.filter(item => item.id !== itemId);
+                delete showTranslation[itemId];
+                delete showRead[itemId];
+                delete favorites[itemId];
+                renderAll();
+                setStatus(`🗑️ Слово удалено`, 'idle');
+            }
+
+            function addTab() {
+                const name = prompt('Введите название новой темы:');
+                if (name && name.trim()) {
+                    const newTab = {
+                        id: data.nextTabId++,
+                        name: name.trim(),
+                        items: []
+                    };
+                    data.tabs.push(newTab);
+                    data.activeTabId = newTab.id;
+                    showTranslation = {};
+                    showRead = {};
+                    renderAll();
+                    setStatus(`✅ Тема "${name.trim()}" создана`, 'success');
+                }
+            }
+
+            function deleteTab(tabId) {
+                if (data.tabs.length <= 1) {
+                    setStatus('❌ Нельзя удалить последнюю тему!', 'error');
+                    return;
+                }
+                const tabName = data.tabs.find(t => t.id === tabId)?.name;
+                if (!confirm(`Удалить тему "${tabName}" вместе со всеми словами?`)) {
+                    return;
+                }
+                const tab = data.tabs.find(t => t.id === tabId);
+                if (tab) {
+                    tab.items.forEach(item => {
+                        delete showTranslation[item.id];
+                        delete showRead[item.id];
+                        delete favorites[item.id];
+                    });
+                }
+                data.tabs = data.tabs.filter(t => t.id !== tabId);
+                if (data.activeTabId === tabId) {
+                    data.activeTabId = data.tabs[0]?.id || null;
+                }
+                renderAll();
+                setStatus(`🗑️ Тема "${tabName}" удалена`, 'idle');
+            }
+
+            function renameTab(tabId) {
+                const tab = data.tabs.find(t => t.id === tabId);
+                if (!tab) return;
+                const newName = prompt('Введите новое название темы:', tab.name);
+                if (newName && newName.trim()) {
+                    tab.name = newName.trim();
+                    renderAll();
+                    setStatus(`✏️ Тема переименована`, 'success');
+                }
+            }
+
+            // ========== JSON ОПЕРАЦИИ ==========
+            function exportTabToJSON(tab) {
+                const jsonData = {
+                    name: tab.name,
+                    words: tab.items.map(item => ({
+                        english: item.english,
+                        russian: item.russian,
+                        read: item.read || ''
+                    }))
+                };
+                return JSON.stringify(jsonData, null, 2);
+            }
+
+            function importTabFromJSON(jsonData, fileName = null) {
+                try {
+                    const parsed = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+                    if (!parsed.name || !parsed.words || !Array.isArray(parsed.words)) {
+                        throw new Error('Неверный формат JSON');
+                    }
+
+                    const existingTab = data.tabs.find(t => t.name === parsed.name);
+                    if (existingTab) {
+                        if (!confirm(`Тема "${parsed.name}" уже существует. Заменить её содержимое?`)) {
+                            return false;
+                        }
+                        existingTab.items = [];
+                        parsed.words.forEach(word => {
+                            existingTab.items.push({
+                                id: data.nextItemId++,
+                                english: word.english || word.en || '',
+                                russian: word.russian || word.ru || '(перевод не указан)',
+                                read: word.read || word.transcription || ''
+                            });
+                        });
+                        data.activeTabId = existingTab.id;
+                        renderAll();
+                        setStatus(`✅ Тема "${parsed.name}" обновлена (${existingTab.items.length} слов)`, 'success');
+                        return true;
+                    }
+
+                    const newTab = {
+                        id: data.nextTabId++,
+                        name: parsed.name,
+                        items: []
+                    };
+
+                    parsed.words.forEach(word => {
+                        newTab.items.push({
+                            id: data.nextItemId++,
+                            english: word.english || word.en || '',
+                            russian: word.russian || word.ru || '(перевод не указан)',
+                            read: word.read || word.transcription || ''
+                        });
+                    });
+
+                    data.tabs.push(newTab);
+                    data.activeTabId = newTab.id;
+                    showTranslation = {};
+                    showRead = {};
+                    renderAll();
+                    setStatus(`✅ Тема "${parsed.name}" загружена (${newTab.items.length} слов)`, 'success');
+                    return true;
+                } catch (error) {
+                    setStatus(`❌ Ошибка импорта: ${error.message}`, 'error');
+                    return false;
+                }
+            }
+
+            function addJsonFile(name, path) {
+                const trimmed = name.trim();
+                if (!trimmed) {
+                    setStatus('⚠️ Введите название файла!', 'error');
+                    return;
+                }
+
+                setStatus(`⏳ Загрузка "${trimmed}.json"...`, 'loading');
+
+                const saved = localStorage.getItem(`json_${trimmed}`);
+                if (saved) {
+                    try {
+                        importTabFromJSON(saved, trimmed);
+                        return;
+                    } catch (e) {}
+                }
+
+                if (path) {
+                    fetch(path)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(jsonData => {
+                            importTabFromJSON(jsonData, trimmed);
+                            localStorage.setItem(`json_${trimmed}`, jsonData);
+                        })
+                        .catch(error => {
+                            setStatus(`❌ Ошибка загрузки: ${error.message}`, 'error');
+                            createExampleJson(trimmed);
+                        });
+                } else {
+                    createExampleJson(trimmed);
+                }
+            }
+
+            function createExampleJson(fileName) {
+                const exampleData = {
+                    name: fileName,
+                    words: [
+                        { english: 'Example word 1', russian: 'Пример слова 1', read: 'Игзэ́мпл' },
+                        { english: 'Example word 2', russian: 'Пример слова 2', read: 'Игзэ́мпл' },
+                        { english: 'Example word 3', russian: 'Пример слова 3', read: 'Игзэ́мпл' }
+                    ]
+                };
+
+                const jsonData = JSON.stringify(exampleData, null, 2);
+                localStorage.setItem(`json_${fileName}`, jsonData);
+                importTabFromJSON(jsonData, fileName);
+            }
+
+            function downloadCurrentTab() {
+                const activeTab = getActiveTab();
+                if (!activeTab) {
+                    setStatus('❌ Нет активной темы', 'error');
+                    return;
+                }
+
+                if (activeTab.items.length === 0) {
+                    setStatus('⚠️ В теме нет слов для экспорта', 'error');
+                    return;
+                }
+
+                const jsonData = exportTabToJSON(activeTab);
+                const blob = new Blob([jsonData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${activeTab.name.toLowerCase().replace(/\s+/g, '_')}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                setStatus(`💾 Тема "${activeTab.name}" сохранена в JSON`, 'success');
+            }
+
+            function clearAll() {
+                if (!confirm('🗑️ Удалить ВСЕ темы и слова? Это действие необратимо!')) return;
+
+                data.tabs = [];
+                data.nextTabId = 1;
+                data.nextItemId = 1;
+                data.activeTabId = null;
+                showTranslation = {};
+                showRead = {};
+                favorites = {};
+
+                renderAll();
+                setStatus('🗑️ Все данные очищены', 'idle');
+            }
+
+            // ========== СОБЫТИЯ ==========
+            addBtn.addEventListener('click', function() {
+                addItem(englishInput.value, russianInput.value, readInput.value);
+            });
+
+            englishInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    russianInput.focus();
+                }
+            });
+
+            russianInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    readInput.focus();
+                }
+            });
+
+            readInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addItem(englishInput.value, russianInput.value, readInput.value);
+                }
+            });
+
+            addTabBtn.addEventListener('click', addTab);
+            showAllBtn.addEventListener('click', showAllTranslations);
+            hideAllBtn.addEventListener('click', hideAllTranslations);
+
+            addJsonFileBtn.addEventListener('click', function() {
+                addJsonFile(jsonFileNameInput.value, jsonFilePathInput.value);
+            });
+
+            jsonFileNameInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    jsonFilePathInput.focus();
+                }
+            });
+
+            jsonFilePathInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addJsonFile(jsonFileNameInput.value, jsonFilePathInput.value);
+                }
+            });
+
+            downloadJsonBtn.addEventListener('click', downloadCurrentTab);
+            clearAllBtn.addEventListener('click', clearAll);
+
+            // ========== ИНИЦИАЛИЗАЦИЯ ==========
+            // Загружаем сохранённые данные
+            loadData();
+
+            initVoices();
+
+            setTimeout(() => {
+                if (window.speechSynthesis.getVoices().length > 0) {
+                    populateVoices();
+                }
+            }, 400);
+
+            // Загружаем встроенные цитаты, которых ещё нет
+            setTimeout(() => {
+                loadBuiltInData();
+            }, 300);
+
+            window.addEventListener('unload', function() {
+                if (window.speechSynthesis.speaking) {
+                    window.speechSynthesis.cancel();
+                }
+                saveData();
+            });
+
+            window.deleteTab = deleteTab;
+            window.renameTab = renameTab;
+
+        })();
+    </script>
+</body>
+</html>
